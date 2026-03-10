@@ -8,9 +8,10 @@ SESSIONS=()
 
 HELP="tmux create and attach script
   name1 name2 ... - create sessions name1 name2 ...
-  -f|--file [file] - create session from [file]
-  -a|--attach - attach created session
-  -h|--help - manual page"
+  -f | --file [file] - create session from [file]
+  -a | --attach - attach created session
+  -d | --default - create default sessions 
+  -h | --help - manual page"
 
 # function to read sessions from file
 read_sessions_from_file() {
@@ -73,6 +74,11 @@ while [[ $# -gt 0 ]]; do
   -f | --file)
     read_sessions_from_file $2
     shift 2
+    ;;
+  -d | --default)
+    SESSIONS=("admin" "devel" "email" "news" "ssh")
+    ATTACH=1
+    shift
     ;;
   *)
     SESSIONS+=("$1")
