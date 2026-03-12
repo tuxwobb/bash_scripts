@@ -3,7 +3,6 @@
 set -euo pipefail
 
 ATTACH=0
-FILE=""
 SESSIONS=()
 
 HELP="tmux create and attach script
@@ -33,10 +32,10 @@ read_sessions_from_file() {
 create_session() {
   local name="$1"
 
-  if [[ $(tmux ls | grep $name | wc -l) -gt 0 ]]; then
+  if [[ $(tmux ls | grep -c "$name") -gt 0 ]]; then
     echo "session $name already exists"
   else
-    tmux new-session -d -s $name
+    tmux new-session -d -s "$name"
     echo "session $name created"
   fi
 }
@@ -72,7 +71,7 @@ while [[ $# -gt 0 ]]; do
     shift
     ;;
   -f | --file)
-    read_sessions_from_file $2
+    read_sessions_from_file "$2"
     shift 2
     ;;
   -d | --default)
@@ -88,8 +87,8 @@ while [[ $# -gt 0 ]]; do
 done
 
 # create sessions from array
-for session in ${SESSIONS[@]}; do
-  create_session $session
+for session in "${SESSIONS[@]}"; do
+  create_session "$session"
 done
 
 # attach to last session in case of -a parameter
