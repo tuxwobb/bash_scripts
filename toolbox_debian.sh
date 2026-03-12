@@ -47,10 +47,22 @@ message_download_failed() {
   echo -e ">>> Download from ${1} failed.\n"
 }
 
+message_change_owner() {
+  echo ">>> Changing owner of directory ${1} to ${USER}:${GROUP}"
+}
+
+message_change_owner_successful() {
+  echo -e ">>> Changing owner of directory ${1} to ${USER}:${GROUP} was successful."
+}
+
+message_change_owner_failed() {
+  echo -e ">>> Chaning owner of directory ${1} to ${USER}:${GROUP} was unsuccessful!"
+}
+
 # Test if the script is running under root account
-test_uid() {
+test_root() {
   if [[ $UID -ne 0 ]]; then
-    echo "You must run this script with root privileges"
+    echo "You must run this script with root privileges!"
     exit 1
   fi
 }
@@ -92,14 +104,12 @@ yazi_create_toolbox_dir() {
 
 # Yazi - Change owner of toolbox directory
 yazi_change_owner_toolbox_dir() {
-  echo ">>> Changing owner of $TOOLBOX_DIR to ${USER}:${GROUP}..."
+  message_change_owner ${TOOLBOX_DIR}
   chown -R ${USER}:${GROUP} $TOOLBOX_DIR
   if [[ ${?} -ne 0 ]]; then
-    echo ">>> Changing owner of $TOOLBOX_DIR was unsuccessful!"
-    exit 1
-  else
-    echo ">>> Changing owner of $TOOLBOX_DIR was successful"
+    message_change_owner_failed ${TOOLBOX_DIR}
   fi
+  message_change_owner_successful ${TOOLBOX_DIR}
 }
 
 # Yazi - Installation
@@ -112,7 +122,7 @@ yazi_install_application() {
     exit 1
   fi
   message_download_successful ${YAZI_URL}
-  
+
   dpkg -i ${TOOLBOX_DIR}/yazi*
   if [[ ${?} -ne 0 ]]; then
     message_install_failed "yazi"
@@ -123,11 +133,11 @@ yazi_install_application() {
 
 # Yazi - remove installation file from toolbox directory
 yazi_remove_installation_file() {
+  echo ">>> Deleting of yazi installation file..."
   rm ${TOOLBOX_DIR}/yazi*
-  if [[ ${1} -ne 0 ]]; then
+  if [[ ${?} -ne 0 ]]; then
     echo ">>> Deleting of yazi installation file unsuccessful!"
-    exit 1
-  fi 
+  fi
   echo ">>> Deleting of yazi installation file was successful."
 }
 
@@ -143,16 +153,38 @@ yazi_install() {
 # Tmux TPM installation function
 tmux_tpm_install() {
   message_install "tpm"
+  message_download ${TPM_URL}
   git clone $TPM_URL ${HOME_DIR}/.tmux/plugins/tpm
+  if [[ ${?} -ne 0 ]]; then
+    message_download_failed ${TPM_URL}
+    exit 1
+  fi
+  message_download_successful ${TPM_URL}
+  message_change_owner "${HOME_DIR}/.tmux"
   chown -R ${USER}:${GROUP} ${HOME_DIR}/.tmux
+  if [[ ${?} -ne 0 ]]; then
+    message_change_owner_failed "${HOME_DIR}/.tmux"
+  fi
+  message_change_owner_successful "${HOME_DIR}/.tmux"
   message_install_successful "tpm"
 }
 
 # Vimplug installation function
-vimplug_install() 
+vimplug_install() {
   message_install "vim-plug"
+  message_download ${VIMPLUG_URL}
   curl -fLo ${HOME_DIR}/.vim/autoload/plug.vim --create-dirs ${VIMPLUG_URL}
+  if [[ ${?} -ne 0 ]]; then
+    message_download_failed ${VIMPLUG_URL}
+    exit 1
+  fi
+  message_download_successful ${VIMPLUG_URL}
+  message_change_owner "${HOME_DIR}/.vim"
   chown -R ${USER}:${GROUP} ${HOME_DIR}/.vim
+  if [[ ${?} -ne 0 ]]; then
+    message_change_owner_failed "${HOME_DIR}/.vim"
+  fi
+  message_change_owner_successful "${HOME_DIR}/.vim"
   message_install_successful "vim-plug"
 }
 
@@ -161,22 +193,28 @@ lazyvim_install() {
   message_install "LazyVim"
   message_download ${LAZYVIM_URL}
   git clone ${LAZYVIM_URL} ${HOME_DIR}/.config/nvim
-  if [[ ${?} -ne 0 ]] 
-  then
+  if [[ ${?} -ne 0 ]]; then
     message_download_failed ${LAZYVIM_URL}
     exit 1
   fi
   message_download_successful ${LAZYVIM_URL}
-  
   chown -R ${USER}:${GROUP} ${HOME_DIR}/.config/nvim
+  if [[ ${?} -ne 0 ]]; then
+    message_change_owner_failed "${HOME_DIR}/.config/nvim"
+  fi
+  message_change_owner_successful "${HOME_DIR}/.config/nvim"
   rm -rf ${HOME_DIR}/.config/nvim/.git
+  if [[ ${?} -ne 0 ]]; then
+    echo ">>> Deleting of ${HOME_DIR}/.config/nvim.git file was unsuccessful!"
+  fi
+  echo ">>> Deleting of ${HOME_DIR}/.config/nvim.git file was successful."
   message_install_successful "LazyVim"
 }
 
 # Main app
-test_uid
+test_root
 basic_install
 yazi_install
 tmux_tpm_install
-# vimplug_install
-# lazyvim_install
+vimplug_install
+lazyvim_install
