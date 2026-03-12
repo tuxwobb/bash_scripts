@@ -32,7 +32,8 @@ generate_password() {
 # Store password function
 store_password() {
   PASSWORD=$(generate_password)
-  echo "$1:$PASSWORD" | chpasswd
+  # echo "$1:$PASSWORD" | chpasswd
+  echo "$PASSWORD" | passwd -s "$1"
   echo "$1,$PASSWORD" >>"$PASSWORD_FILE"
 }
 
