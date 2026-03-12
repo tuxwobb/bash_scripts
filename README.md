@@ -18,11 +18,17 @@ Installed applications:
 
     vim mc tmux fastfetch git wget curl fzf btop lazygit bat lsd ripgrep tldr ffmpeg 7zip jq poppler-utils fd-find ripgrep fzf zoxide imagemagick xclip
 
+    neovim
+
     yazi
 
 Installed plugins:
 
-    LazyVim vim-plug tmux-tpm
+    LazyVim 
+    
+    vim-plug 
+   
+    tmux-tpm
 
 Example:
 
