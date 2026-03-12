@@ -16,8 +16,8 @@ TOOLBOX_DIR="${HOME_DIR}/Downloads/toolbox"
 APPS="vim mc tmux fastfetch git wget curl fzf btop lazygit bat lsd ripgrep npm"
 YAZI_DEP="ffmpeg 7zip jq poppler-utils fd-find ripgrep fzf zoxide imagemagick xclip"
 
-# YAZI_URL="https://github.com/sxyazi/yazi/releases/download/v26.1.22/yazi-aarch64-unknown-linux-gnu.deb"
-YAZI_URL="https://github.com/sxyazi/yazi/releases/download/v26.1.22/yazi-x86_64-unknown-linux-gnu.deb"
+YAZI_URL="https://github.com/sxyazi/yazi/releases/download/v26.1.22/yazi-aarch64-unknown-linux-gnu.deb"
+# YAZI_URL="https://github.com/sxyazi/yazi/releases/download/v26.1.22/yazi-x86_64-unknown-linux-gnu.deb"
 LAZYVIM_URL="https://github.com/LazyVim/starter"
 VIMPLUG_URL="https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
 TPM_URL="https://github.com/tmux-plugins/tpm"
@@ -48,7 +48,7 @@ message_download_failed() {
 }
 
 message_change_owner() {
-  echo ">>> Changing owner of directory ${1} to ${USER}:${GROUP}"
+  echo ">>> Changing owner of directory ${1} to ${USER}:${GROUP}..."
 }
 
 message_change_owner_successful() {
@@ -74,9 +74,8 @@ basic_install() {
   if [[ ${?} -ne 0 ]]; then
     message_install_failed "Basic applications"
     exit 1
-  else
-    message_install_successful "Basic applications"
   fi
+  message_install_successful "Basic applications"
 }
 
 # Yazi - Install dependencies
@@ -86,9 +85,8 @@ yazi_install_dependencies() {
   if [[ ${?} -ne 0 ]]; then
     message_install_failed "yazi dependencies"
     exit 1
-  else
-    message_install_successful "yazi dependencies"
   fi
+  message_install_successful "yazi dependencies"
 }
 
 # Yazi - Create toolbox directory
@@ -114,7 +112,6 @@ yazi_change_owner_toolbox_dir() {
 
 # Yazi - Installation
 yazi_install_application() {
-  message_install "yazi"
   message_download ${YAZI_URL}
   wget -P ${TOOLBOX_DIR} ${YAZI_URL}
   if [[ ${?} -ne 0 ]]; then
@@ -122,7 +119,7 @@ yazi_install_application() {
     exit 1
   fi
   message_download_successful ${YAZI_URL}
-
+  message_install "yazi"
   dpkg -i ${TOOLBOX_DIR}/yazi*
   if [[ ${?} -ne 0 ]]; then
     message_install_failed "yazi"
