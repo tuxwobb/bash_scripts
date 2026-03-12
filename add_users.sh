@@ -1,17 +1,42 @@
 #!/bin/bash
 
-USERS=("test" "test2" "test3" "test4" "test5")
+USERS=()
 LOG_FILE="log.txt"
 PASSWORD_FILE="pass.txt"
+VERBOSE=0
+HELP="Script to add users into system
+-v | --verbose - write log to standard output
+-h | --help - help"
 
+# Check root function
+check_root() {
+  if [[ $UID -ne 0 ]]; then
+    echo "You must be root!"
+    exit 1
+  fi
+}
+
+# Log message function
 log_message() {
+  if [[ $VERBOSE -eq 1 ]]; then
+    echo -e "${1}"
+  fi
   echo -e "$(date '+%Y-%m-%d %H:%M:%S') >>> ${1}" >>$LOG_FILE
 }
 
+# Generate passowrd function
 generate_password() {
   openssl rand -base64 12
 }
 
+# Store password function
+store_password() {
+  PASSWORD=$(generate_password)
+  echo "$1:$PASSWORD" | chpasswd
+  echo "$1,$PASSWORD" >>"$PASSWORD_FILE"
+}
+
+# Create group function
 create_group() {
   groupadd "$1" &>/dev/null
   if [[ ! ${?} ]]; then
@@ -21,6 +46,7 @@ create_group() {
   fi
 }
 
+# Create user function
 create_user() {
   useradd -m -g "$1" "$1" &>/dev/null
   if [[ ! ${?} ]]; then
@@ -30,11 +56,32 @@ create_user() {
   fi
 }
 
+# Main loop
+
 # Only root can run this script
-if [[ $UID -ne 0 ]]; then
-  log_message "You must be root!"
-  exit 1
+check_root
+
+# Parse arguments
+if [[ $# -eq 0 ]]; then
+  echo -e "$HELP"
 fi
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+  -h | --help)
+    echo -e "$HELP"
+    shift
+    ;;
+  -v | --verbose)
+    VERBOSE=1
+    shift
+    ;;
+  *)
+    USERS+=("$1")
+    shift
+    ;;
+  esac
+done
 
 for USER in "${USERS[@]}"; do
 
@@ -50,11 +97,7 @@ for USER in "${USERS[@]}"; do
     log_message "User ${USER} already exists."
   else
     create_user "$USER"
-
-    PASSWORD=$(generate_password)
-    echo "$USER:$PASSWORD" | chpasswd
-    # Save user and password to a file
-    echo "$USER,$PASSWORD" >>"$PASSWORD_FILE"
+    store_password "$USER"
   fi
 
 done
