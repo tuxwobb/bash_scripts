@@ -5,12 +5,17 @@ set -euo pipefail
 ATTACH=0
 SESSIONS=()
 
-HELP="tmux create and attach script
-  name1 name2 ... - create sessions name1 name2 ...
-  -f | --file [file] - create session from [file]
-  -a | --attach - attach created session
-  -d | --default - create default sessions 
-  -h | --help - manual page"
+# function to show help
+usage() {
+  echo "Usage: $0 [-f [FILE]] [-a] [-d] [-h] [SESSION] [SESSION...]"
+  echo "  Script to create tmux sessions"
+  echo "  -f | --file [FILE] create session from file"
+  echo "  -a | --attach      attach created session"
+  echo "  -d | --default     create default set of sessions"
+  echo "  -h | --help        man page"
+  echo 
+  exit 1
+}
 
 # function to read sessions from file
 read_sessions_from_file() {
@@ -40,11 +45,6 @@ create_session() {
   fi
 }
 
-# function to print help instructions
-print_help() {
-  echo -e "$HELP"
-}
-
 # function to attach session
 attach_session() {
   if [[ $ATTACH -ne 0 ]]; then
@@ -55,7 +55,7 @@ attach_session() {
 
 # print help in case of no argument
 if [[ $# -eq 0 ]]; then
-  print_help
+  usage
   exit 0
 fi
 
@@ -63,7 +63,7 @@ fi
 while [[ $# -gt 0 ]]; do
   case "$1" in
   -h | --help)
-    print_help
+    usage
     exit 0
     ;;
   -a | --attach)
