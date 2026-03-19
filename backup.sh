@@ -1,34 +1,45 @@
 #/bin/bash
 
-readonly BACKUP_LOCATION='/tmp'
+# default backup directory
+DESTINATION='/tmp'
+
+log() {
+  echo $1 
+  logger -t $0 $1
+}
 
 backup_file() {
-  # function to backup file or directory into global variable BACKUP_LOCATION
-  local FILE=$1
+  # function to backup file or directory into $DESTINATION directory
+  local SOURCE=$1
+  local DEST=${DESTINATION}/$(basename $SOURCE)-$(date +%F-%N)
 
   # backup file
-  if [[ -f "$FILE" ]]
+  if [[ -f "$SOURCE" ]]
   then
-    cp -p $FILE ${BACKUP_LOCATION}/$(basename $FILE)-$(date +%F-%N)
+    cp -p $SOURCE $DEST &>/dev/null
     if [[ $? -eq 0 ]]
     then
-      echo "Backup of file $FILE was successfull!"
+      log "Backup of file $SOURCE into folder $(dirname $DEST) was successfull!"
       return 0
+    else
+      log "Backup of file $SOURCE into folder $(dirname $DEST) failed!" 
     fi
   
   # backup directory
-  elif [[ -d "$FILE" ]]
+  elif [[ -d "$SOURCE" ]]
   then
-    cp -pr $FILE ${BACKUP_LOCATION}/$(basename $FILE)-$(date +%F-%N)
+    cp -pr $SOURCE $DEST &>/dev/null
     if [[ $? -eq 0 ]]
     then
-      echo "Backup of directory $FILE was successfull!"
+      log "Backup of directory $SOURCE into folder $(dirname $DEST) was successfull!"
       return 0
+    else
+      log "Backup of directory $SOURCE into folder $(dirname $DEST) failed!"
     fi
  
   # operation not successfull
   else
-    echo "File or directory $FILE does not exist!" >&2
+    log "File or directory $SOURCE does not exist!" >&2
     return 1
   fi
 }
@@ -36,14 +47,30 @@ backup_file() {
 # test if argument was provided
 if [[ $# -eq 0 ]]
 then
-  echo "Usage: $0 FILENAME|DIRNAME [FILENAME|DIRNAME]..." >&2
+  echo "Usage: $0 [-d DESTINATION] FILE|DIRECTORY [FLE|DIRECTORY]..." >&2
   exit 1
 fi
 
 # main 
-for input in "$@"
+while [[ $# -gt 0 ]]
 do
-  backup_file $1
-  shift
+  case $1 in 
+   -d | --destination)
+     shift
+     DESTINATION="$1"
+     mkdir -p $DESTINATION &>/dev/null
+     if [[ $? -eq 0 ]] 
+     then
+       log "Created new directory $DESTINATION"
+     else
+       log "Error while creating directory $DESTINATION" >&2
+       exit 1
+     fi
+     shift
+     ;;
+   *)
+     backup_file $1
+     shift
+     ;;
+  esac
 done
-

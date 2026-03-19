@@ -10,6 +10,18 @@ Example:
 
     ./tmux.sh -f sessions.txt test test2 -a
 
+## backup.sh
+
+Bash script to create backup of selected files/folders into selected folder
+
+    ./backup.sh -d /tmp *.sh
+
+## add_users.sh
+
+Bash script to create new users
+
+    ./add_users user
+
 ## toolbox_debian.sh
 
 Bash script to prepare development environment on Debian
