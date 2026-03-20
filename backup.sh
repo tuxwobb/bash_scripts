@@ -47,7 +47,8 @@ backup_file() {
 # test if argument was provided
 if [[ $# -eq 0 ]]
 then
-  echo "Usage: $0 [-d DESTINATION] FILE|DIRECTORY [FLE|DIRECTORY]..." >&2
+  echo "Usage: $0 [-d DESTINATION] FILE|DIRECTORY [FILE|DIRECTORY...]" >&2
+  echo "  script to backup selected files/directories with timestamps" >&2
   exit 1
 fi
 
