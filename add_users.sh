@@ -2,6 +2,8 @@
 
 USERS=()
 PASSWORD_FILE="pass.txt"
+LENGTH=30
+SPECIAL_CHARS='!@#$%^&*()_-+={[}]:;'
 
 # Check root function
 check_root() {
@@ -13,11 +15,14 @@ check_root() {
 
 # Usage function
 usage() {
-  echo "Usage $0 [-h] [-v] [USER] [USER...]"
+  echo "Usage $0 [-h] [-p FILE] [-P LENGTH] [-s] [-v] [-l] USER [USER...]"
   echo "  Script to add users into local system"
   echo "  -h | --help    man page"
-  echo "  -p [FILE]      password file"
+  echo "  -p FILE        password file"
+  echo "  -P LENGTH      password lentgh (default 30)"
+  echo "  -s | --special add special character into password"
   echo "  -v | --verbose write log to standard output"
+  echo "  -l | --log     write log to syslog"
   echo
   exit 1
 }
@@ -28,12 +33,17 @@ log() {
   if [[ $VERBOSE -eq 1 ]]; then
     echo -e "$MESSAGE"
   fi
-  logger -t $0 "${MESSAGE}"
+  if [[ $LOG -eq 1 ]]; then
+    logger -t $0 "${MESSAGE}"
+  fi
 }
 
 # Generate password
 generate_password() {
-  PASSWORD=$(date +%F%N${RANDOM}${RANDOM} | sha256sum | head -c20)
+  PASSWORD=$(date +%F%N${RANDOM}${RANDOM} | sha256sum | head -c${LENGTH})
+  if [[ $SPECIAL -eq 'true' ]]; then
+    PASSWORD=${PASSWORD}$(echo $SPECIAL_CHARS | fold -w1 | shuf | head -c1)
+  fi
   echo "${PASSWORD}" | passwd -s "$1"
   echo "${1}, $PASSWORD" >>"$PASSWORD_FILE"
 }
@@ -79,8 +89,21 @@ while [[ $# -gt 0 ]]; do
     PASSWORD_FILE="$1"
     shift
     ;;
+  -P)
+    shift
+    LENGTH="$1"
+    shift
+    ;;
+  -s | --special)
+    SPECIAL='true'
+    shift
+    ;;
   -v | --verbose)
     VERBOSE=1
+    shift
+    ;;
+  -l | --log)
+    LOG=1
     shift
     ;;
   *)
