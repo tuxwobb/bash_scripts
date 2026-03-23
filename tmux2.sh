@@ -2,10 +2,10 @@
 
 set -euo pipefail
 
-ATTACH=0
+ATTACH='false'
 USE_DEFAULT_SESSIONS='false'
-DEFAULT_SESSIONS=("admin" "devel" "task" "email" "news")
-VERBOSE=0
+DEFAULT_SESSIONS=('admin' 'devel' 'task' 'email' 'news')
+VERBOSE='false'
 SESSIONS=()
 
 # function to show help
@@ -29,7 +29,7 @@ log() {
 
 # function to read sessions from file
 read_sessions_from_file() {
-  if [[ $VERBOSE -eq 1 ]]; then
+  if [[ $VERBOSE == 'true' ]]; then
     log "Reading sessions from file..."
   fi
   local FILE="$1"
@@ -48,7 +48,7 @@ read_sessions_from_file() {
 
 # function to create new session
 create_session() {
-  if [[ $(tmux has-session -t "$1" >&/dev/null) ]]; then
+  if [[ $(tmux has-session -t "$1" &>/dev/null) ]]; then
     log "session $1 already exists"
   else
     tmux new-session -d -s "$1" &>/dev/null
@@ -58,8 +58,8 @@ create_session() {
 
 # function to attach session
 attach_session() {
-  if [[ $ATTACH == 1 ]]; then
-    if [[ $VERBOSE == 1 ]]; then
+  if [[ $ATTACH == 'true' ]]; then
+    if [[ $VERBOSE == 'true' ]]; then
       log "Attaching to last session..."
     fi
     tmux attach
@@ -78,7 +78,7 @@ while getopts haf:dv OPTION; do
     usage
     ;;
   a) # attach session
-    ATTACH=1
+    ATTACH='true'
     ;;
   f) # read from file
     read_sessions_from_file "$OPTARG"
@@ -87,7 +87,7 @@ while getopts haf:dv OPTION; do
     USE_DEFAULT_SESSIONS='true'
     ;;
   v) # verbose output
-    VERBOSE=1
+    VERBOSE='true'
     ;;
   ?) # print usage
     usage
@@ -104,7 +104,7 @@ while [[ ${#} -gt 0 ]]; do
 done
 
 # create sessions from array
-if [[ $VERBOSE -eq 1 ]]; then
+if [[ $VERBOSE == 'true' ]]; then
   log "Creating sessions..."
 fi
 
