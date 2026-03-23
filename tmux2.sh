@@ -5,25 +5,28 @@ set -euo pipefail
 ATTACH=0
 USE_DEFAULT_SESSIONS='false'
 DEFAULT_SESSIONS=("admin" "devel" "task" "email" "news")
+VERBOSE=0
 SESSIONS=()
 
 # function to show help
 usage() {
-  echo "Usage: $0 [-f [FILE]] [-a] [-d] [-h] [SESSION] [SESSION...]"
-  echo "  Script to create tmux sessions"
-  echo "  -d | --default     create default set of sessions"
-  echo "  -f | --file [FILE] create session from file"
-  echo "  -a | --attach      attach created session"
-  echo "  -h | --help        man page"
-  echo "  -v | --verbose     verbose output"
+  echo "Usage: $0 [-h] [-va] [-d] [-f FILE] [SESSION] [SESSION...]"
+  echo "  Script to create and attach tmux sessions"
+  echo "    -h       man page"
+  echo "    -v       verbose output"
+  echo "    -a       attach created session"
+  echo "    -d       create default set of sessions"
+  echo "    -f FILE  create session from file"
   echo
   exit 1
 }
 
+# function to log output
 log() {
   local MESSAGE="${*}"
   echo "$MESSAGE"
 }
+
 # function to read sessions from file
 read_sessions_from_file() {
   if [[ $VERBOSE -eq 1 ]]; then
@@ -55,7 +58,7 @@ create_session() {
 
 # function to attach session
 attach_session() {
-  if [[ $ATTACH == 0 ]]; then
+  if [[ $ATTACH == 1 ]]; then
     if [[ $VERBOSE == 1 ]]; then
       log "Attaching to last session..."
     fi
@@ -63,38 +66,41 @@ attach_session() {
   fi
 }
 
-# print help in case of no argument
+# print usage in case of no arguments
 if [[ $# -eq 0 ]]; then
   usage
 fi
 
 # parse parameters
-while [[ $# -gt 0 ]]; do
-  case "$1" in
-  -h | --help)
+while getopts haf:dv OPTION; do
+  case $OPTION in
+  h) # print usage
     usage
     ;;
-  -a | --attach)
+  a) # attach session
     ATTACH=1
-    shift
     ;;
-  -f | --file)
-    read_sessions_from_file "$2"
-    shift 2
+  f) # read from file
+    read_sessions_from_file "$OPTARG"
     ;;
-  -d | --default)
+  d) # defautl sessions
     USE_DEFAULT_SESSIONS='true'
-    shift
     ;;
-  -v | --verbose)
+  v) # verbose output
     VERBOSE=1
-    shift
     ;;
-  *)
-    SESSIONS+=("$1")
-    shift
+  ?) # print usage
+    usage
     ;;
   esac
+done
+
+shift "$((OPTIND - 1))"
+
+# parse arguments
+while [[ ${#} -gt 0 ]]; do
+  SESSIONS+=("$1")
+  shift
 done
 
 # create sessions from array
