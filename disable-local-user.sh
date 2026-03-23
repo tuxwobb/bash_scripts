@@ -1,7 +1,7 @@
 #!/bin/bash
 
-ARCHIVE_DESTINATION="/home/wobbler/Backup"
-VERBOSE="false"
+ARCHIVE_DESTINATION='/home/wobbler/Backup'
+VERBOSE='false'
 
 usage() {
   echo "Usage: disable-local-user.sh [-h] USERNAME [USERNAME...]"
@@ -58,13 +58,13 @@ fi
 
 while [[ ${#} -gt 0 ]]; do
 
-  # check if user account exists
   USER_ID=$(id -u "$1" 2>/dev/null)
   USER_NAME=$1
 
-  if [[ $? -gt 0 ]]; then
+  # check if user account exists
+  if [[ $USER_ID == '' ]]; then
     echo "User $USER_NAME doesn´t exist!"
-  elif [[ $USER_ID -eq "" ]]; then
+  elif [[ $USER_ID == '' ]]; then
     echo "User $USER_NAME can´t be deleted, because it doesn´t exists."
   else
     if [[ $USER_ID -lt 1001 ]]; then
@@ -75,7 +75,7 @@ while [[ ${#} -gt 0 ]]; do
         # archive user home directory if exist
         log "Archiving user $USER_NAME home directory..."
         mkdir -p $ARCHIVE_DESTINATION &>/dev/null
-        tar -cvf ${ARCHIVE_DESTINATION}/${USER_NAME}-$(date +%F-%N).tar /home/${USER_NAME} &>/dev/null
+        tar -cvf "${ARCHIVE_DESTINATION}"/"${USER_NAME}"-"$(date +%F-%N)".tar /home/"${USER_NAME}" &>/dev/null
         echo "Archiving of user $USER_NAME home directory completed!"
       fi
 
