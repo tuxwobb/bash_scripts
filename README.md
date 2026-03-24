@@ -22,6 +22,12 @@ Bash script to create new users
 
     ./add_users user
 
+## disable_local_user.sh
+
+Bash script to disable users
+
+    ./disable-local-user.sh
+
 ## toolbox_debian.sh
 
 Bash script to prepare development environment on Debian
