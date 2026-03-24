@@ -2,115 +2,119 @@
 
 set -euo pipefail
 
-ATTACH=0
+ATTACH='false'
 USE_DEFAULT_SESSIONS='false'
-DEFAULT_SESSIONS=("admin" "devel" "task" "email" "news")
+DEFAULT_SESSIONS=('admin' 'devel' 'task' 'email' 'news')
+VERBOSE='false'
 SESSIONS=()
 
-# function to show help
+# usage
 usage() {
-  echo "Usage: $0 [-f [FILE]] [-a] [-d] [-h] [SESSION] [SESSION...]"
-  echo "  Script to create tmux sessions"
-  echo "  -d | --default     create default set of sessions"
-  echo "  -f | --file [FILE] create session from file"
-  echo "  -a | --attach      attach created session"
-  echo "  -h | --help        man page"
-  echo "  -v | --verbose     verbose output"
+  echo "Usage: ${0} [-h] [-va] [-d] [-f FILE] [SESSION] [SESSION...]"
+  echo "  Script to create and attach tmux sessions."
+  echo "    -h       man page"
+  echo "    -v       verbose output"
+  echo "    -a       attach tmux"
+  echo "    -d       create default sessions"
+  echo "    -f FILE  create sessions from file"
   echo
   exit 1
 }
 
+# verbose output
 log() {
   local MESSAGE="${*}"
-  echo "$MESSAGE"
+  if [[ ${VERBOSE} == 'true' ]]; then
+    echo "${MESSAGE}"
+  fi
 }
-# function to read sessions from file
+
+# read sessions from file
 read_sessions_from_file() {
-  if [[ $VERBOSE -eq 1 ]]; then
-    log "Reading sessions from file..."
-  fi
-  local FILE="$1"
+  log "Reading sessions from file..."
+  local FILE="${1}"
 
-  if [[ -n $FILE ]]; then
-    if [[ ! -f "$FILE" ]]; then
-      log "FILE '$FILE' not found."
+  if [[ -n ${FILE} ]]; then
+    if [[ ! -f "${FILE}" ]]; then
+      log "FILE '${FILE}' not found."
     fi
 
-    while IFS= read -r session; do
-      [[ -z "$session" ]] && continue
-      SESSIONS+=("$session")
-    done <"$FILE"
+    while IFS= read -r SESSION; do
+      [[ -z "${SESSION}" ]] && continue
+      SESSIONS+=("${SESSION}")
+    done <"${FILE}"
   fi
 }
 
-# function to create new session
+# create new session
 create_session() {
-  if [[ $(tmux has-session -t "$1" >&/dev/null) ]]; then
-    log "session $1 already exists"
+  echo "Creating session $1"
+  if tmux has -t "${1}" 2>/dev/null; then
+    echo "Session ${1} already exists" >&2
   else
-    tmux new-session -d -s "$1" &>/dev/null
-    log "session $1 created"
+    tmux new-session -d -s "${1}" &>/dev/null
+    echo "Session ${1} created"
   fi
 }
 
-# function to attach session
+# attach session
 attach_session() {
-  if [[ $ATTACH == 0 ]]; then
-    if [[ $VERBOSE == 1 ]]; then
-      log "Attaching to last session..."
-    fi
-    tmux attach
+  if [[ ${ATTACH} == 'true' ]]; then
+    log "Attaching to last session..."
+    tmux attach &>/dev/null
   fi
 }
 
-# print help in case of no argument
-if [[ $# -eq 0 ]]; then
+# print usage in case of no arguments
+if [[ ${#} -eq 0 ]]; then
   usage
 fi
 
 # parse parameters
-while [[ $# -gt 0 ]]; do
-  case "$1" in
-  -h | --help)
+while getopts haf:dv OPTION; do
+  case ${OPTION} in
+  h) # print usage
     usage
     ;;
-  -a | --attach)
-    ATTACH=1
-    shift
+  a) # attach session
+    ATTACH='true'
     ;;
-  -f | --file)
-    read_sessions_from_file "$2"
-    shift 2
+  f) # read from file
+    read_sessions_from_file "${OPTARG}"
     ;;
-  -d | --default)
+  d) # defautl sessions
     USE_DEFAULT_SESSIONS='true'
-    shift
     ;;
-  -v | --verbose)
-    VERBOSE=1
-    shift
+  v) # verbose output
+    VERBOSE='true'
     ;;
-  *)
-    SESSIONS+=("$1")
-    shift
+  ?) # print usage
+    usage
     ;;
   esac
 done
 
-# create sessions from array
-if [[ $VERBOSE -eq 1 ]]; then
-  log "Creating sessions..."
+shift "$((OPTIND - 1))"
+
+# parse arguments
+while [[ ${#} -gt 0 ]]; do
+  SESSIONS+=("${1}")
+  shift
+done
+
+# append default sessions in case of -d
+if [[ ${USE_DEFAULT_SESSIONS} == 'true' ]]; then
+  log "Appending default sessions..."
+  for SESSION in "${DEFAULT_SESSIONS[@]}"; do
+    SESSIONS+=("$SESSION")
+  done
 fi
 
-if [[ $USE_DEFAULT_SESSIONS == 'true' ]]; then
-  for session in "${DEFAULT_SESSIONS[@]}"; do
-    create_session "$session"
-  done
-else
-  for session in "${SESSIONS[@]}"; do
-    create_session "$session"
-  done
-fi
+# create sessions from array
+log "Creating sessions..."
+for SESSION in "${SESSIONS[@]}"; do
+  create_session "${SESSION}"
+done
 
 # attach to last session in case of -a parameter
 attach_session

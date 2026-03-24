@@ -29,20 +29,20 @@ usage() {
 
 # Log message function
 log() {
-  MESSAGE="$@"
+  MESSAGE="$*"
   if [[ $VERBOSE -eq 1 ]]; then
     echo -e "$MESSAGE"
   fi
   if [[ $LOG -eq 1 ]]; then
-    logger -t $0 "${MESSAGE}"
+    logger -t "$0" "${MESSAGE}"
   fi
 }
 
 # Generate password
 generate_password() {
-  PASSWORD=$(date +%F%N${RANDOM}${RANDOM} | sha256sum | head -c${LENGTH})
-  if [[ $SPECIAL -eq 'true' ]]; then
-    PASSWORD=${PASSWORD}$(echo $SPECIAL_CHARS | fold -w1 | shuf | head -c1)
+  PASSWORD=$(date +%F%N${RANDOM}${RANDOM} | sha256sum | head -c "${LENGTH}")
+  if [[ $SPECIAL == 'true' ]]; then
+    PASSWORD=${PASSWORD}$(echo "$SPECIAL_CHARS" | fold -w1 | shuf | head -c1)
   fi
   echo "${PASSWORD}" | passwd -s "$1"
   echo "${1}, $PASSWORD" >>"$PASSWORD_FILE"
@@ -69,20 +69,17 @@ create_user() {
 }
 
 # Main loop
-
-# Only root can run this script
 check_root
 
 # Parse arguments
 if [[ $# -eq 0 ]]; then
-  usage 
+  usage
 fi
 
 while [[ $# -gt 0 ]]; do
   case $1 in
   -h | --help)
     usage
-    exit 1
     ;;
   -p)
     shift
