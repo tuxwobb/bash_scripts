@@ -49,7 +49,7 @@ message_install_successful() {
 
 message_install_failed() {
   if [[ $VERBOSE == 'true' ]]; then
-    echo -e ">>> ${*} installation failed, read the instructions above!\n"
+    echo -e ">>> ${*} installation failed, read the instructions above!\n" >&2
   fi
 }
 
@@ -67,7 +67,7 @@ message_download_successful() {
 
 message_download_failed() {
   if [[ $VERBOSE == 'true' ]]; then
-    echo -e ">>> Download from ${*} failed.\n"
+    echo -e ">>> Download from ${*} failed.\n" >&2
   fi
 }
 
@@ -85,14 +85,14 @@ message_change_owner_successful() {
 
 message_change_owner_failed() {
   if [[ $VERBOSE == 'true' ]]; then
-    echo -e ">>> Chaning owner of directory ${*} to ${USER}:${GROUP} was unsuccessful!"
+    echo -e ">>> Chaning owner of directory ${*} to ${USER}:${GROUP} was unsuccessful!" >&2
   fi
 }
 
 # Test if the script is running under root account
 test_root() {
   if [[ $UID -ne 0 ]]; then
-    echo "You must run this script with root privileges!"
+    echo "You must run this script with root privileges!" >&2
     exit 1
   fi
 }
@@ -101,7 +101,7 @@ test_root() {
 basic_install() {
   message_install "Basic applications" "${APPS}"
   if ! sudo apt-get install -yq "${APPS}" &>/dev/null; then
-    message_install_failed "Basic applications"
+    message_install_failed "Basic applications" >&2
     exit 1
   fi
   message_install_successful "Basic applications"
@@ -111,7 +111,7 @@ basic_install() {
 yazi_install_dependencies() {
   message_install "yazi dependencies" "${YAZI_DEP}"
   if ! sudo apt-get install -yq "${YAZI_DEP}" &>/dev/null; then
-    message_install_failed "yazi dependencies"
+    message_install_failed "yazi dependencies" >&2
     exit 1
   fi
   message_install_successful "yazi dependencies"
@@ -121,7 +121,7 @@ yazi_install_dependencies() {
 yazi_create_toolbox_dir() {
   echo ">>> Creating $TOOLBOX_DIR directory..."
   if ! mkdir -p $TOOLBOX_DIR &>/dev/null; then
-    echo ">>> Error while creating directory ${TOOLBOX_DIR}."
+    echo ">>> Error while creating directory ${TOOLBOX_DIR}." >&2
     exit 1
   fi
   echo -e ">>> Directory $TOOLBOX_DIR created succesfully.\n"
@@ -156,7 +156,7 @@ yazi_install_application() {
 yazi_remove_installation_file() {
   echo ">>> Deleting of yazi installation file..."
   if ! rm ${TOOLBOX_DIR}/yazi* &>/dev/null; then
-    echo ">>> Deleting of yazi installation file unsuccessful!"
+    echo ">>> Deleting of yazi installation file unsuccessful!" >&2
   fi
   echo ">>> Deleting of yazi installation file was successful."
 }
@@ -218,7 +218,7 @@ lazyvim_install() {
   fi
   message_change_owner_successful "${HOME_DIR}/.config/nvim"
   if ! rm -rf ${HOME_DIR}/.config/nvim/.git &>/dev/null; then
-    echo ">>> Deleting of ${HOME_DIR}/.config/nvim.git file was unsuccessful!"
+    echo ">>> Deleting of ${HOME_DIR}/.config/nvim.git file was unsuccessful!" >&2
   fi
   echo ">>> Deleting of ${HOME_DIR}/.config/nvim.git file was successful."
   message_install_successful "LazyVim"
