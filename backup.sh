@@ -3,6 +3,12 @@
 # default backup directory
 DESTINATION='/tmp'
 
+usage() {
+  echo "Usage: $0 [-d DESTINATION] FILE|DIRECTORY [FILE|DIRECTORY...]" >&2
+  echo "  script to backup selected files/directories with timestamps" >&2
+  exit 1
+}
+
 log() {
   echo "$1"
   logger -t "$0" "$1"
@@ -40,28 +46,30 @@ backup_file() {
 
 # test if argument was provided
 if [[ $# -eq 0 ]]; then
-  echo "Usage: $0 [-d DESTINATION] FILE|DIRECTORY [FILE|DIRECTORY...]" >&2
-  echo "  script to backup selected files/directories with timestamps" >&2
-  exit 1
+  usage
 fi
 
 # main
-while [[ $# -gt 0 ]]; do
-  case $1 in
-  -d | --destination)
-    shift
-    DESTINATION="$1"
+while getopts d: OPTION; do
+  case $OPTION in
+  d)
+    DESTINATION="$OPTARG"
     if mkdir -p "$DESTINATION" &>/dev/null; then
       log "Created new directory $DESTINATION"
     else
       log "Error while creating directory $DESTINATION" >&2
       exit 1
     fi
-    shift
     ;;
   *)
-    backup_file "$1"
-    shift
+    usage
     ;;
   esac
+done
+
+shift "$((OPTIND - 1))"
+
+while [[ ${#} -gt 0 ]]; do
+  backup_file "$1"
+  shift
 done
