@@ -6,6 +6,7 @@ DESTINATION='/tmp'
 usage() {
   echo "Usage: $0 [-d DESTINATION] FILE|DIRECTORY [FILE|DIRECTORY...]" >&2
   echo "  script to backup selected files/directories with timestamps" >&2
+  echo "    -d  select destination directory"
   exit 1
 }
 

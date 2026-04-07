@@ -4,7 +4,7 @@ ARCHIVE_DESTINATION='/home/wobbler/Backup'
 
 # Usage
 usage() {
-  echo "Usage: disable-local-user.sh [-h] USERNAME [USERNAME...]"
+  echo "Usage: $0 [-h] USERNAME [USERNAME...]"
   echo "  Script will disable provided list of user accounts on local system."
   echo "    -h  show help"
   echo "    -d  permanently delete user account"

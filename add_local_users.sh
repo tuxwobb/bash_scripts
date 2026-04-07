@@ -17,12 +17,12 @@ check_root() {
 usage() {
   echo "Usage $0 [-h] [-p FILE] [-P LENGTH] [-s] [-v] [-l] USER [USER...]"
   echo "  Script to add users into local system"
-  echo "  -h | --help    man page"
-  echo "  -p FILE        password file"
-  echo "  -P LENGTH      password lentgh (default 30)"
-  echo "  -s | --special add special character into password"
-  echo "  -v | --verbose write log to standard output"
-  echo "  -l | --log     write log to syslog"
+  echo "    -h | --help    man page"
+  echo "    -p FILE        password file"
+  echo "    -P LENGTH      password lentgh (default 30)"
+  echo "    -s | --special add special character into password"
+  echo "    -v | --verbose write log to standard output"
+  echo "    -l | --log     write log to syslog"
   echo
   exit 1
 }
