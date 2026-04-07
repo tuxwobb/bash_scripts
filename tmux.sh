@@ -10,12 +10,12 @@ SESSIONS=()
 
 # usage
 usage() {
-  echo "Usage: ${0} [-h] [-va] [-d] [-f FILE] [SESSION] [SESSION...]"
+  echo "Usage: ${0} [-h] [-va] [-d] [-f FILE] [SESSION] [SESSION]..."
   echo "  Script to create and attach tmux sessions."
   echo "    -h       man page"
   echo "    -v       verbose output"
   echo "    -a       attach tmux"
-  echo "    -d       create default sessions"
+  echo "    -d       create default sessions (${DEFAULT_SESSIONS[*]})"
   echo "    -f FILE  create sessions from file"
   echo
   exit 1
