@@ -14,16 +14,19 @@ HOME_DIR="/home/${USER}"
 TOOLBOX_DIR="${HOME_DIR}/Downloads/toolbox"
 
 APPS="vim mc tmux fastfetch git wget curl fzf btop lazygit bat lsd ripgrep npm tree-sitter-cli"
-YAZI_DEP="ffmpeg 7zip jq poppler-utils fd-find ripgrep fzf zoxide imagemagick xclip"
 
+YAZI_DEP="ffmpeg 7zip jq poppler-utils fd-find ripgrep fzf zoxide imagemagick xclip"
 YAZI_URL="https://github.com/sxyazi/yazi/releases/download/v26.1.22/yazi-aarch64-unknown-linux-gnu.deb"
 # YAZI_URL="https://github.com/sxyazi/yazi/releases/download/v26.1.22/yazi-x86_64-unknown-linux-gnu.deb"
+
 LAZYVIM_URL="https://github.com/LazyVim/starter"
+
 VIMPLUG_URL="https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
+
 TPM_URL="https://github.com/tmux-plugins/tpm"
 
 usage() {
-  echo "Usage: $0 [-v]"
+  echo "Usage: $0 [-h] [-v] [-bylpt] [-a]"
   echo "  Script to install development environment on Debian"
   echo "    -h  man page"
   echo "    -v  verbose output of installation commands"
@@ -34,58 +37,11 @@ usage() {
   echo "    -a  install all tools"
   exit 1
 }
-# Help message functions
-message_install() {
-  if [[ $VERBOSE == 'true' ]]; then
-    echo ">>> Installing ${*}..."
-  fi
-}
 
-message_install_successful() {
+# Log function
+log() {
   if [[ $VERBOSE == 'true' ]]; then
-    echo -e ">>> ${*} installed successfully.\n"
-  fi
-}
-
-message_install_failed() {
-  if [[ $VERBOSE == 'true' ]]; then
-    echo -e ">>> ${*} installation failed, read the instructions above!\n" >&2
-  fi
-}
-
-message_download() {
-  if [[ $VERBOSE == 'true' ]]; then
-    echo ">>> Downloading from ${*}..."
-  fi
-}
-
-message_download_successful() {
-  if [[ $VERBOSE == 'true' ]]; then
-    echo -e ">>> Download from ${*} was successful.\n"
-  fi
-}
-
-message_download_failed() {
-  if [[ $VERBOSE == 'true' ]]; then
-    echo -e ">>> Download from ${*} failed.\n" >&2
-  fi
-}
-
-message_change_owner() {
-  if [[ $VERBOSE == 'true' ]]; then
-    echo ">>> Changing owner of directory ${*} to ${USER}:${GROUP}..."
-  fi
-}
-
-message_change_owner_successful() {
-  if [[ $VERBOSE == 'true' ]]; then
-    echo -e ">>> Changing owner of directory ${*} to ${USER}:${GROUP} was successful."
-  fi
-}
-
-message_change_owner_failed() {
-  if [[ $VERBOSE == 'true' ]]; then
-    echo -e ">>> Chaning owner of directory ${*} to ${USER}:${GROUP} was unsuccessful!" >&2
+    echo ">>> ${*}"
   fi
 }
 
@@ -99,139 +55,127 @@ test_root() {
 
 # Basic applications installation function
 basic_install() {
-  message_install "Basic applications" "${APPS}"
+  log "Installing of basic applications: " "${APPS}"
   if ! sudo apt-get install -yq "${APPS}" &>/dev/null; then
-    message_install_failed "Basic applications" >&2
+    log "Basic applications installation failed." >&2
     exit 1
   fi
-  message_install_successful "Basic applications"
+  log "Basic applications installation successfull."
 }
 
-# Yazi - Install dependencies
-yazi_install_dependencies() {
-  message_install "yazi dependencies" "${YAZI_DEP}"
-  if ! sudo apt-get install -yq "${YAZI_DEP}" &>/dev/null; then
-    message_install_failed "yazi dependencies" >&2
-    exit 1
-  fi
-  message_install_successful "yazi dependencies"
-}
-
-# Yazi - Create toolbox directory
-yazi_create_toolbox_dir() {
-  echo ">>> Creating $TOOLBOX_DIR directory..."
-  if ! mkdir -p $TOOLBOX_DIR &>/dev/null; then
-    echo ">>> Error while creating directory ${TOOLBOX_DIR}." >&2
-    exit 1
-  fi
-  echo -e ">>> Directory $TOOLBOX_DIR created succesfully.\n"
-}
-
-# Yazi - Change owner of toolbox directory
-yazi_change_owner_toolbox_dir() {
-  message_change_owner ${TOOLBOX_DIR}
-  if ! chown -R ${USER}:${GROUP} $TOOLBOX_DIR &>/dev/null; then
-    message_change_owner_failed ${TOOLBOX_DIR}
-  fi
-  message_change_owner_successful ${TOOLBOX_DIR}
-}
-
-# Yazi - Installation
-yazi_install_application() {
-  message_download ${YAZI_URL}
-  if ! wget -P ${TOOLBOX_DIR} ${YAZI_URL} &>/dev/null; then
-    message_download_failed ${YAZI_URL}
-    exit 1
-  fi
-  message_download_successful ${YAZI_URL}
-  message_install "yazi"
-  if ! dpkg -i ${TOOLBOX_DIR}/yazi* &>/dev/null; then
-    message_install_failed "yazi"
-    exit 1
-  fi
-  message_install_successful "yazi"
-}
-
-# Yazi - remove installation file from toolbox directory
-yazi_remove_installation_file() {
-  echo ">>> Deleting of yazi installation file..."
-  if ! rm ${TOOLBOX_DIR}/yazi* &>/dev/null; then
-    echo ">>> Deleting of yazi installation file unsuccessful!" >&2
-  fi
-  echo ">>> Deleting of yazi installation file was successful."
-}
-
-# Yazi installation function
+# Yazi installation
 yazi_install() {
-  yazi_install_dependencies
-  yazi_create_toolbox_dir
-  yazi_change_owner_toolbox_dir
-  yazi_install_application
-  yazi_remove_installation_file
+
+  log "Installing of Yazi dependencies" "${YAZI_DEP}"
+  if ! sudo apt-get install -yq "${YAZI_DEP}" &>/dev/null; then
+    log "Yazi dependencies installation failed." >&2
+    exit 1
+  fi
+  log "Yazi dependencies installation successfull."
+
+  log "Creating $TOOLBOX_DIR directory..."
+  if ! mkdir -p $TOOLBOX_DIR &>/dev/null; then
+    log "Error while creating directory ${TOOLBOX_DIR}." >&2
+    exit 1
+  fi
+  log "Directory $TOOLBOX_DIR created succesfully."
+
+  log "Change owner of directory ${TOOLBOX_DIR}"
+  if ! chown -R ${USER}:${GROUP} $TOOLBOX_DIR &>/dev/null; then
+    log "Change owner of directory ${TOOLBOX_DIR} failed." >&2
+    exit 1
+  fi
+  log "Change owner of directory ${TOOLBOX_DIR} successfull."
+
+  log "Downloading Yazi from ${YAZI_URL}"
+  if ! wget -P ${TOOLBOX_DIR} ${YAZI_URL} &>/dev/null; then
+    log "Download Yazi from ${YAZI_URL} failed." >&2
+    exit 1
+  fi
+  log "Downloading Yazi from ${YAZI_URL} successfull."
+
+  log "Installing Yazi package"
+  if ! dpkg -i ${TOOLBOX_DIR}/yazi* &>/dev/null; then
+    log "Installing Yazi package failed." >&2
+    exit 1
+  fi
+  log "Installing Yazi package successfull."
+
+  log "Deleting of Yazi installation file."
+  if ! rm ${TOOLBOX_DIR}/yazi* &>/dev/null; then
+    log "Deleting of Yazi installation file failed." >&2
+    exit 1
+  fi
+  log "Deleting of Yazi installation file successfull."
 }
 
 # Tmux TPM installation function
 tmux_tpm_install() {
-  message_install "tpm"
-  message_download ${TPM_URL}
+  log "Downloading tpm from ${TPM_URL}"
   if ! git clone $TPM_URL ${HOME_DIR}/.tmux/plugins/tpm &>/dev/null; then
-    message_download_failed ${TPM_URL}
+    log "Downloading tpm from ${TPM_URL} failed." >&2
     exit 1
   fi
-  message_download_successful ${TPM_URL}
-  message_change_owner "${HOME_DIR}/.tmux"
+  log "Downloading tpm from ${TPM_URL} successfull."
+
+  log "Change owner of ${HOME_DIR}/.tmux directory."
   if ! chown -R ${USER}:${GROUP} ${HOME_DIR}/.tmux &>/dev/null; then
-    message_change_owner_failed "${HOME_DIR}/.tmux"
+    log "Change owner of ${HOME_DIR}/.tmux failed" >&2
+    exit 1
   fi
-  message_change_owner_successful "${HOME_DIR}/.tmux"
-  message_install_successful "tpm"
+  log "Change owner of ${HOME_DIR}/.tmux directory successfull."
 }
 
 # Vimplug installation function
 vimplug_install() {
-  message_install "vim-plug"
-  message_download ${VIMPLUG_URL}
+  log "Downloading vimplug from ${VIMPLUG_URL}"
   if ! curl -fLo ${HOME_DIR}/.vim/autoload/plug.vim --create-dirs ${VIMPLUG_URL} &>/dev/null; then
-    message_download_failed ${VIMPLUG_URL}
+    log "Downloading vimplug from ${VIMPLUG_URL} failed." >&2
     exit 1
   fi
-  message_download_successful ${VIMPLUG_URL}
-  message_change_owner "${HOME_DIR}/.vim"
+  log "Downloading vimplug from ${VIMPLUG_URL} successfull."
+
+  log "Change owner of ${HOME_DIR}/.vim directory."
   if ! chown -R ${USER}:${GROUP} ${HOME_DIR}/.vim &>/dev/null; then
-    message_change_owner_failed "${HOME_DIR}/.vim"
+    log "Change owner of ${HOME_DIR}/.vim directory failed." >&2
   fi
-  message_change_owner_successful "${HOME_DIR}/.vim"
-  message_install_successful "vim-plug"
+  log "Change owner of ${HOME_DIR}/.vim direcgory successfull."
 }
 
 # Lazyvim installation function
 lazyvim_install() {
-  message_install "LazyVim"
-  message_download ${LAZYVIM_URL}
+  log "Downloading of LazyVim from ${LAZYVIM_URL}"
   if ! git clone ${LAZYVIM_URL} ${HOME_DIR}/.config/nvim &>/dev/null; then
-    message_download_failed ${LAZYVIM_URL}
+    log "Downloading of LazyVim from ${LAZYVIM_URL} failed." >&2
     exit 1
   fi
-  message_download_successful ${LAZYVIM_URL}
+  log "Downloading of LazyVim from ${LAZYVIM_URL} successfull."
+
+  log "Change owner of ${HOME_DIR}/.config/nvim directory."
   if ! chown -R ${USER}:${GROUP} ${HOME_DIR}/.config/nvim &>/dev/null; then
-    message_change_owner_failed "${HOME_DIR}/.config/nvim"
+    log "Change owner of ${HOME_DIR}/.config/nvim direcgory failed." >&2
+    exit 1
   fi
-  message_change_owner_successful "${HOME_DIR}/.config/nvim"
+  log "Change owner of ${HOME_DIR}/.config/nvim directory successfull."
+
+  log "Deleting of ${HOME_DIR}/.config/nvim/.git directory."
   if ! rm -rf ${HOME_DIR}/.config/nvim/.git &>/dev/null; then
-    echo ">>> Deleting of ${HOME_DIR}/.config/nvim.git file was unsuccessful!" >&2
+    log "Deleting of ${HOME_DIR}/.config/nvim.git file failed." >&2
   fi
-  echo ">>> Deleting of ${HOME_DIR}/.config/nvim.git file was successful."
-  message_install_successful "LazyVim"
+  echo ">>> Deleting of ${HOME_DIR}/.config/nvim.git file successful."
 }
 
 # Main app
-while getopts hvylpta OPTION; do
+while getopts hvbylpta OPTION; do
   case $OPTION in
   h)
     usage
     ;;
   v)
     VERBOSE='true'
+    ;;
+  b)
+    INSTALL_BASIC='true'
     ;;
   y)
     INSTALL_YAZI='true'
@@ -257,14 +201,8 @@ done
 # Main
 test_root
 
-basic_install
-
-if [[ $INSTALL_ALL == 'true' ]]; then
-  yazi_install
-  tmux_tpm_install
-  vimplug_install
-  lazyvim_install
-  exit 0
+if [[ $INSTALL_BASIC == 'true' ]]; then
+  basic_install
 fi
 
 if [[ $INSTALL_YAZI == 'true' ]]; then
@@ -280,6 +218,14 @@ if [[ $INSTALL_VIMPLUG == 'true' ]]; then
 fi
 
 if [[ $INSTALL_TPM == 'true' ]]; then
+  lazyvim_install
+fi
+
+if [[ $INSTALL_ALL == 'true' ]]; then
+  basic_install
+  yazi_install
+  tmux_tpm_install
+  vimplug_install
   lazyvim_install
 fi
 
