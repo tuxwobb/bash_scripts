@@ -1,29 +1,25 @@
 #!/bin/bash
 
 # Basic applications
-# vim mc tmux fastfetch git wget curl fzf btop lazygit bat lsd ripgrep tldr
+APPS=('vim' 'mc' 'tmux' 'fastfetch' 'git' 'wget' 'curl' 'fzf' 'btop' 'lazygit' 'bat' 'lsd' 'ripgrep')
 
 # yazi dependencies
-# ffmpeg 7zip jq poppler-utils fd-find ripgrep fzf zoxide imagemagick xclip
+YAZI_DEP=('ffmpeg' '7zip' 'jq' 'poppler-utils' 'fd-find' 'ripgrep' 'fzf' 'zoxide' 'imagemagick' 'xclip')
 
 # Setup parameters
-USER="wobbler"
+USER='wobbler'
 GROUP=${USER}
 
+# Folders
 HOME_DIR="/home/${USER}"
 TOOLBOX_DIR="${HOME_DIR}/Downloads/toolbox"
 
-APPS="vim mc tmux fastfetch git wget curl fzf btop lazygit bat lsd ripgrep npm tree-sitter-cli"
-
-YAZI_DEP="ffmpeg 7zip jq poppler-utils fd-find ripgrep fzf zoxide imagemagick xclip"
-YAZI_URL="https://github.com/sxyazi/yazi/releases/download/v26.1.22/yazi-aarch64-unknown-linux-gnu.deb"
-# YAZI_URL="https://github.com/sxyazi/yazi/releases/download/v26.1.22/yazi-x86_64-unknown-linux-gnu.deb"
-
-LAZYVIM_URL="https://github.com/LazyVim/starter"
-
-VIMPLUG_URL="https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
-
-TPM_URL="https://github.com/tmux-plugins/tpm"
+# Urls
+YAZI_URL='https://github.com/sxyazi/yazi/releases/download/v26.1.22/yazi-aarch64-unknown-linux-gnu.deb'
+# YAZI_URL='https://github.com/sxyazi/yazi/releases/download/v26.1.22/yazi-x86_64-unknown-linux-gnu.deb'
+LAZYVIM_URL='https://github.com/LazyVim/starter'
+VIMPLUG_URL='https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+TPM_URL='https://github.com/tmux-plugins/tpm'
 
 usage() {
   echo "Usage: $0 [-h] [-v] [-bylpt] [-a]"
@@ -40,9 +36,7 @@ usage() {
 
 # Log function
 log() {
-  if [[ $VERBOSE == 'true' ]]; then
     echo ">>> ${*}"
-  fi
 }
 
 # Test if the script is running under root account
@@ -55,8 +49,8 @@ test_root() {
 
 # Basic applications installation function
 basic_install() {
-  log "Installing of basic applications: " "${APPS}"
-  if ! sudo apt-get install -yq "${APPS}" &>/dev/null; then
+  log "Installing of basic applications: ${APPS[@]}"
+  if ! sudo apt-get install -yq "${APPS[@]}" ; then
     log "Basic applications installation failed." >&2
     exit 1
   fi
@@ -66,8 +60,8 @@ basic_install() {
 # Yazi installation
 yazi_install() {
 
-  log "Installing of Yazi dependencies" "${YAZI_DEP}"
-  if ! sudo apt-get install -yq "${YAZI_DEP}" &>/dev/null; then
+  log "Installing of Yazi dependencies: ${YAZI_DEP[@]}"
+  if ! sudo apt-get install -yq "${YAZI_DEP[@]}" ; then
     log "Yazi dependencies installation failed." >&2
     exit 1
   fi
