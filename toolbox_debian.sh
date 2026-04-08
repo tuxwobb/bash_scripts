@@ -167,6 +167,12 @@ neovim_install() {
   fi
   log "Moving neovim appimage into /opt directory completed."
 
+  if ! chmod +x /opt/"$NEOVIM_FILE"; then
+    log "Changing neovim appimage executable failed." >&2
+    exit 1
+  fi
+  log "Changing neovim appimage executable completed."
+
   if ! (cd $TOOLBOX_DIR && ln -sfT /opt/"$NEOVIM_FILE" /usr/local/bin/nvim &>/dev/null); then
     log "Creating of symlink to neovim appimage failed."
     exit 1
