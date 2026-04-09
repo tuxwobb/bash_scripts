@@ -1,15 +1,13 @@
 #!/bin/bash
 
-set -o pipefail
-
 SERVER_FILE='servers'
 
 # Usage function
 usage() {
-  echo "Usage: $0 [-f FILE] [-n] [-s] [-v] COMMAND"
-  echo "  Script to run command on remote machines, default list of servers in file servers"
+  echo "Usage: $0 [-f FILE] [-dsv] COMMAND"
+  echo "  Script to run command on remote machines, default list of servers in file servers, format server port"
   echo "    -f FILE  custom file with list of servers"
-  echo "    -n       dry-run"
+  echo "    -d       dry-run"
   echo "    -s       run as sudo"
   echo "    -v       verbose mode"
   echo
@@ -17,12 +15,12 @@ usage() {
 }
 
 # Parsing arguments
-while getopts f:nsv OPTION; do
+while getopts f:dsv OPTION; do
   case "$OPTION" in
   f)
     SERVER_FILE=$OPTARG
     ;;
-  n)
+  d)
     DRY_RUN='true'
     ;;
   s)
@@ -43,8 +41,8 @@ if [[ $# -eq 0 ]]; then
   usage
 fi
 
-if [[ UID -eq 0 ]]; then
-  echo "Script must be executed under normal user." >&2
+if [[ $UID -eq 0 ]]; then
+  echo "You can't use sudo, use option -s instead." >&2
   exit 1
 fi
 
@@ -70,10 +68,9 @@ while read -r SERVER PORT; do
 
   # dry-run
   if [[ $DRY_RUN == 'true' ]]; then
-    echo "ssh -n $SERVER $PORT $COMMAND"
+    echo "ssh -n $SERVER -p $PORT $COMMAND"
   else
-    ssh -n "$SERVER" -p "$PORT" "$COMMAND"
-    if [[ "${?}" -ne 0 ]]; then
+    if ! ssh -n "$SERVER" -p "$PORT" "$COMMAND"; then
       echo "Command was not successful." >&2
     fi
   fi
