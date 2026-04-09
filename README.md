@@ -20,9 +20,9 @@ Bash script to create backup of selected files/folders into selected folder
 
 Bash script to create new users on local machine
 
-    ./add_local_users user [-h] [-p FILE] [-P LENGTH] [-svl] USER [USER]...
+    ./add_local_users user [-h] [-p FILE] [-P LENGTH] [-svl] USERNAME [USERNAME]...
 
-## disable_local_user.sh
+## disable_local_users.sh
 
 Bash script to disable users on local machine
 
@@ -30,15 +30,19 @@ Bash script to disable users on local machine
 
 ## toolbox_debian.sh
 
-Bash script to prepare development environment on Debian
+Bash script to prepare easily development environment on Debian
 
-Installed applications:
+Basic applications:
 
-    vim mc tmux fastfetch git wget curl fzf btop lazygit bat lsd ripgrep tldr ffmpeg 7zip jq poppler-utils fd-find ripgrep fzf zoxide imagemagick xclip
+    vim mc tmux fastfetch git wget curl fzf btop lazygit bat lsd ripgrep 
 
-    neovim
+Yazi dependencies:
 
-    yazi
+    ffmpeg 7zip jq poppler-utils fd-find ripgrep fzf zoxide imagemagick xclip
+
+Other applications:
+
+    neovim yazi
 
 Installed plugins:
 
