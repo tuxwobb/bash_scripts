@@ -51,7 +51,7 @@ fi
 # Main loop
 COMMAND="$*"
 
-while read -e LINE; do
+while read -re LINE; do
   # verbose output
   if [[ $VERBOSE == 'true' ]]; then
     echo ">>> ${LINE}"
@@ -61,7 +61,7 @@ while read -e LINE; do
   if [[ $DRY_RUN == 'true' ]]; then
     echo "ssh $LINE $COMMAND"
   else
-    ssh $LINE $COMMAND
+    ssh -n "$LINE" "$COMMAND"
   fi
 
 done <"$SERVER_FILE"
