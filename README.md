@@ -4,29 +4,29 @@ Set of bash scripts for my daily use
 
 ## tmux.sh
 
-Bash script to create tmux sessions from command line
+Bash script to create set of tmux sessions from command line
 
 Example:
 
-    ./tmux.sh -f sessions.txt test test2 -a
+    ./tmux.sh [-h] [-vad] [-f FILE] [SESSION]...
 
 ## backup.sh
 
 Bash script to create backup of selected files/folders into selected folder
 
-    ./backup.sh -d /tmp *.sh
+    ./backup.sh [-d DESTINATION] FILE|DIRECTORY [FILE|DIRECTORY]...
 
 ## add_users.sh
 
-Bash script to create new users
+Bash script to create new users on local machine
 
-    ./add_users user
+    ./add_users user [-h] [-p FILE] [-P LENGTH] [-svl] USER [USER]...
 
 ## disable_local_user.sh
 
-Bash script to disable users
+Bash script to disable users on local machine
 
-    ./disable-local-user.sh
+    ./disable-local-user.sh [-h] [-drav] USERNAME [USERNAME]...
 
 ## toolbox_debian.sh
 
@@ -50,6 +50,11 @@ Installed plugins:
 
 Example:
 
-    ./toolbox_debian.sh
+    ./toolbox_debian.sh [-h] [-v] [-bylpt] [-a]
 
+## run-everywhere.sh
+
+Bash script to run command on multiple servers
+
+    ./run-everywhere.sh [-f FILE] [-dvs] COMMAND 
 
