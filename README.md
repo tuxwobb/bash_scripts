@@ -16,17 +16,17 @@ Bash script to create backup of selected files/folders into selected folder
 
     ./backup.sh [-d DESTINATION] FILE|DIRECTORY [FILE|DIRECTORY]...
 
-## add_users.sh
+## add_local_users.sh
 
 Bash script to create new users on local machine
 
-    ./add_users user [-h] [-p FILE] [-P LENGTH] [-svl] USER [USER]...
+    ./add_local_users user [-h] [-p FILE] [-P LENGTH] [-svl] USER [USER]...
 
 ## disable_local_user.sh
 
 Bash script to disable users on local machine
 
-    ./disable-local-user.sh [-h] [-drav] USERNAME [USERNAME]...
+    ./disable_local_user.sh [-h] [-drav] USERNAME [USERNAME]...
 
 ## toolbox_debian.sh
 
