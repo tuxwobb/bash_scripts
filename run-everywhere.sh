@@ -43,25 +43,39 @@ if [[ $# -eq 0 ]]; then
   usage
 fi
 
+if [[ UID -eq 0 ]]; then
+  echo "Script must be executed under normal user." >&2
+  exit 1
+fi
+
 if [[ ! -e $SERVER_FILE ]]; then
-  echo "File $SERVER_FILE does not exist."
+  echo "File $SERVER_FILE does not exist." >&2
   exit 1
 fi
 
 # Main loop
-COMMAND="$*"
 
-while read -re LINE; do
+# create command
+COMMAND='set -o pipefail; '
+if [[ $SUDO == 'true' ]]; then
+  COMMAND+='sudo '
+fi
+COMMAND+="$*"
+
+while read -r SERVER PORT; do
   # verbose output
   if [[ $VERBOSE == 'true' ]]; then
-    echo ">>> ${LINE}"
+    echo ">>> ${SERVER}"
   fi
 
   # dry-run
   if [[ $DRY_RUN == 'true' ]]; then
-    echo "ssh $LINE $COMMAND"
+    echo "ssh -n $SERVER $PORT $COMMAND"
   else
-    ssh -n "$LINE" "$COMMAND"
+    ssh -n "$SERVER" -p "$PORT" "$COMMAND"
+    if [[ "${?}" -ne 0 ]]; then
+      echo "Command was not successful." >&2
+    fi
   fi
 
 done <"$SERVER_FILE"
